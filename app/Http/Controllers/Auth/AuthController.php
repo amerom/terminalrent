@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\Registrar;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
@@ -20,6 +21,11 @@ class AuthController extends Controller {
 
 	use AuthenticatesAndRegistersUsers;
 
+    /**
+     * @var string
+     */
+    protected $redirectTo = '/';
+
 	/**
 	 * Create a new authentication controller instance.
 	 *
@@ -32,7 +38,24 @@ class AuthController extends Controller {
 		$this->auth = $auth;
 		$this->registrar = $registrar;
 
-		$this->middleware('guest', ['except' => 'getLogout']);
+		$this->middleware('admin', ['only' => 'getRegister', 'postRegister']);
+        $this->middleware('guest', ['except' => ['getLogout', 'getRegister', 'postRegister']]);
 	}
+
+    public function postRegister(Request $request) {
+        $validator = $this->registrar->validator($request->all());
+
+        if ($validator->fails())
+        {
+            $this->throwValidationException(
+                $request, $validator
+            );
+        }
+
+        $this->registrar->create($request->all());
+
+        \Session::flash('flash_message_success', 'New user successfully added to database');
+        return redirect($this->redirectPath());
+    }
 
 }

@@ -10,8 +10,14 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-
 Route::get('/', 'HomeController@index');
+
+Route::get('upload', 'UserReportsController@index');
+Route::post('apply/upload', 'UserReportsController@upload');
+Route::get('reports/{id?}', 'ReportsController@index');
+
+Route::resource('users', 'UsersController');
+Route::resource('terminals', 'TerminalController');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',
